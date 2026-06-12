@@ -36,7 +36,7 @@
 |<docs/04_api_design.md>             |API設計              |
 |<docs/05_tech_stack.md>             |技術選定・ディレクトリ構造      |
 |<docs/06_operations.md>             |無料枠運用・コスト最適化・AI開発体制|
-|docs/metoo-ui-v2.jsx                |UI設計図（全13画面モック）    |
+|docs/metoo-ui-v2.tsx                |UI設計図（全13画面モック）    |
 
 AI（Claude Code）での開発ルールはリポジトリ直下の <CLAUDE.md> を参照。
 
