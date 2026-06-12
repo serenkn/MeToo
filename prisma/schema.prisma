@@ -1,0 +1,240 @@
+// DB定義の唯一の正。直接SQLでスキーマを変えない。
+// マイグレーション実行時は DIRECT_URL が必要（pgbouncer経由では動かない）
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── NextAuth.js 管理テーブル ───
+// 直接操作しない。表示名は profiles.display_name を正とする（users.name は使用しない）
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?   @db.VarChar(255)
+  email         String    @unique @db.VarChar(255)
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // NextAuth.js 追加テーブル
+  accounts Account[]
+  sessions Session[]
+
+  // アプリ固有リレーション
+  profile      Profile?
+  recruitments Recruitment[]
+  applications Application[]
+  groupMembers GroupMember[]
+  messages     Message[]
+  notifications Notification[]
+  favorites    Favorite[]
+  reports      Report[]       @relation("reporter")
+  reportedBy   Report[]       @relation("reported")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refreshToken      String? @map("refresh_token")
+  accessToken       String? @map("access_token")
+  expiresAt         Int?    @map("expires_at")
+  tokenType         String? @map("token_type")
+  scope             String?
+  idToken           String? @map("id_token")
+  sessionState      String? @map("session_state")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── プロフィール ───
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  displayName String   @db.VarChar(50) @map("display_name")
+  age         Int?
+  attribute   String?  @db.VarChar(50)
+  pace        String?  @db.VarChar(20)
+  area        String?  @db.VarChar(100)
+  bio         String?
+  goal        String?  @db.VarChar(100)
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ─── 募集 ───
+
+model Recruitment {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  title           String   @db.VarChar(100)
+  body            String
+  sportType       String   @db.VarChar(50) @map("sport_type")
+  pace            String?  @db.VarChar(20)
+  distanceKm      Decimal? @db.Decimal(5, 1) @map("distance_km")
+  level           String   @db.VarChar(20)  // beginner / amateur / pro / club
+  maxMembers      Int?     @map("max_members")
+  meetAt          DateTime @map("meet_at")
+  locationName    String?  @db.VarChar(200) @map("location_name")
+  locationAddress String?  @db.VarChar(200) @map("location_address")
+  locationLat     Decimal? @db.Decimal(10, 7) @map("location_lat")
+  locationLng     Decimal? @db.Decimal(10, 7) @map("location_lng")
+  course          String?
+  notes           String?
+  area            String?  @db.VarChar(100)
+  status          String   @db.VarChar(20)  // open / closed / cancelled
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+  groupMembers GroupMember[]
+  messages     Message[]
+  favorites    Favorite[]
+
+  @@index([meetAt])
+  @@index([area])
+  @@index([level])
+  @@index([status])
+  @@map("recruitments")
+}
+
+// ─── 参加申請 ───
+
+model Application {
+  id            String   @id @default(uuid())
+  recruitmentId String   @map("recruitment_id")
+  applicantId   String   @map("applicant_id")
+  message       String?
+  status        String   @db.VarChar(20)  // pending / approved / rejected
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  recruitment Recruitment @relation(fields: [recruitmentId], references: [id], onDelete: Cascade)
+  applicant   User        @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@index([recruitmentId])
+  @@index([applicantId])
+  @@map("applications")
+}
+
+// ─── グループメンバー ───
+// applications.status が approved になった時点で自動生成する
+// 未読数 = last_read_message_id より新しいメッセージ数（NULL の場合は全件が未読）
+
+model GroupMember {
+  id                 String   @id @default(uuid())
+  recruitmentId      String   @map("recruitment_id")
+  userId             String   @map("user_id")
+  isHost             Boolean  @map("is_host")
+  joinedAt           DateTime @default(now()) @map("joined_at")
+  lastReadMessageId  String?  @map("last_read_message_id")
+
+  recruitment     Recruitment @relation(fields: [recruitmentId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadMessage Message?    @relation(fields: [lastReadMessageId], references: [id])
+
+  @@unique([recruitmentId, userId])
+  @@index([recruitmentId])
+  @@map("group_members")
+}
+
+// ─── メッセージ ───
+
+model Message {
+  id            String   @id @default(uuid())
+  recruitmentId String   @map("recruitment_id")
+  senderId      String   @map("sender_id")
+  body          String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  recruitment  Recruitment   @relation(fields: [recruitmentId], references: [id], onDelete: Cascade)
+  sender       User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  groupMembers GroupMember[]
+
+  @@index([recruitmentId, createdAt])
+  @@map("messages")
+}
+
+// ─── 通知 ───
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   @db.VarChar(50)  // application_received / application_approved / new_message
+  relatedId String?  @map("related_id")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ─── お気に入り ───
+
+model Favorite {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  recruitmentId String   @map("recruitment_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recruitment Recruitment @relation(fields: [recruitmentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recruitmentId])
+  @@map("favorites")
+}
+
+// ─── 通報 ───
+
+model Report {
+  id             String   @id @default(uuid())
+  reporterId     String   @map("reporter_id")
+  reportedUserId String   @map("reported_user_id")
+  reason         String
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  reporter     User @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User @relation("reported", fields: [reportedUserId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
