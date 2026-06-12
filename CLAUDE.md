@@ -30,7 +30,7 @@ npm run dev          # 開発サーバー
 npm run build        # ビルド
 npm run lint         # ESLint
 npm run typecheck    # tsc --noEmit
-npm test             # テスト
+npm test             # Vitest（単体テスト）
 npx prisma migrate dev    # マイグレーション（DIRECT_URL必須）
 npx prisma generate       # 型生成
 ```

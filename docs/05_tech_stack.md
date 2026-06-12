@@ -1,7 +1,7 @@
 # 技術スタック — MeToo
 
 最終更新：2026-06-12
-バージョン：2.0（Pusher採用・地図リンク方式・Bulletproof構造を反映）
+バージョン：2.1（Resend・Vitest追加）
 
 -----
 
@@ -18,6 +18,8 @@
 |ストレージ  |Cloudflare R2      |egress無料・コスパ最良。DBにはURLのみ保存              |
 |リアルタイム |Pusher（Sandbox）    |トークのリアルタイム配信。同時接続200・20万msg/日が無料        |
 |地図     |**APIなし・リンク方式**    |住所＋Googleマップへのリンクのみ。キー不要・完全無料           |
+|メール送信   |Resend             |パスワードリセットメール送信。無料枠3000通/月・API操作が簡潔      |
+|テスト     |Vitest + RTL       |Vitestは高速・ESM対応。React Testing Libraryでコンポーネントテスト|
 |ホスティング |Vercel（Hobby）      |Next.jsとの相性最良。商用化時にCloudflare Pages移行を検討|
 
 -----
@@ -73,6 +75,20 @@
 
 - Hobbyで開始。収益が出た段階でCloudflare Pages移行 or Vercel Pro（$20/月）を判断
 - Cloudflare Workers（next-on-pages）は機能制限・情報量の少なさから初期採用を見送り
+
+-----
+
+### Resend
+
+- パスワードリセットメールの送信に使用
+- 無料枠：3000通/月（MVP期は十分）
+- `RESEND_API_KEY`（秘密）・`EMAIL_FROM`（公開可）の2変数のみで動作
+
+### Vitest + React Testing Library
+
+- Jest互換API・ESMネイティブ対応・設定が軽量
+- React Testing Libraryでコンポーネントのユニットテストを記述
+- CI（GitHub Actions）で typecheck / lint / test を並行実行
 
 -----
 

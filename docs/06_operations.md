@@ -119,6 +119,8 @@
 |`PUSHER_SECRET`             |Pusherサーバー側             |秘密  |
 |`NEXT_PUBLIC_PUSHER_KEY`    |Pusherクライアント側           |公開  |
 |`NEXT_PUBLIC_PUSHER_CLUSTER`|Pusherリージョン（ap3=東京）     |公開  |
+|`RESEND_API_KEY`            |Resend APIキー（メール送信）    |秘密  |
+|`EMAIL_FROM`                |送信元メールアドレス              |公開可 |
 
 注意：
 
@@ -140,7 +142,7 @@
 |死活監視  |UptimeRobot                               |無料   |
 |自動起票  |Sentry → GitHub Issue 連携                  |無料   |
 |修正PR作成|Claude Code Action（GitHub Actions）        |API従量|
-|検証    |GitHub Actions CI（typecheck / lint / test）|無料枠内 |
+|検証    |GitHub Actions CI（typecheck / lint / vitest）|無料枠内 |
 |依存更新  |Renovate（更新PR自動作成）                        |無料   |
 |デプロイ  |Vercel（mainマージで自動）                        |無料   |
 

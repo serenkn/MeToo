@@ -24,6 +24,8 @@
 
 ### POST /api/auth/register
 
+`users` と `profiles` をトランザクションで同時作成する（docs/03 §5参照）。
+
 **リクエスト**
 
 ```json
@@ -42,6 +44,51 @@
   "email": "string"
 }
 ```
+
+### POST /api/auth/forgot-password
+
+パスワードリセット用のメールをResendで送信する。
+
+**リクエスト**
+
+```json
+{
+  "email": "string"
+}
+```
+
+**レスポンス 200**（メールアドレスの存否にかかわらず常に200を返す）
+
+```json
+{
+  "message": "メールを送信しました"
+}
+```
+
+### POST /api/auth/reset-password
+
+リセットトークンを検証してパスワードを更新する。
+
+**リクエスト**
+
+```json
+{
+  "token": "string",
+  "password": "string"
+}
+```
+
+**レスポンス 200**
+
+```json
+{
+  "message": "パスワードを更新しました"
+}
+```
+
+**エラー**
+
+- 400：トークンが無効または期限切れ
 
 -----
 
@@ -108,8 +155,8 @@ distance_min : number   // 距離下限
 distance_max : number   // 距離上限
 pace         : string   // ペース
 max_members  : number   // 募集人数
-level        : string   // ビギナー/アマチュア/プロ/クラブ
-date         : string   // today / this_week / this_month
+level        : string   // beginner / amateur / pro / club
+date         : string   // today / this_week / this_month（省略時=いつでも・絞り込みなし）
 sort         : string   // new（デフォルト）/ meet_at
 page         : number   // ページ番号（デフォルト1）
 limit        : number   // 件数（デフォルト20）

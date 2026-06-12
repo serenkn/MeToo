@@ -51,9 +51,12 @@ NextAuth.jsが自動生成・管理するテーブル群。基本的に直接操
 |pace        |varchar(20) |NULL    |ペース（例：5:20/km）|
 |area        |varchar(100)|NULL    |活動エリア         |
 |bio         |text        |NULL    |自己紹介          |
+|goal        |varchar(100)|NULL    |目標             |
 |avatar_url  |text        |NULL    |アバター画像URL（R2） |
 |created_at  |timestamp   |NOT NULL|作成日時          |
 |updated_at  |timestamp   |NOT NULL|更新日時          |
+
+> **表示名の正：** アプリ全体で表示名は `profiles.display_name` を使用する。`users.name` はNextAuth.js管理カラムだが使用しない。
 
 -----
 
@@ -102,13 +105,18 @@ NextAuth.jsが自動生成・管理するテーブル群。基本的に直接操
 
 applicationsのstatusがapprovedになった時点で自動生成する想定。
 
-|カラム名          |型        |NULL    |説明                  |
-|--------------|---------|--------|--------------------|
-|id            |uuid     |NOT NULL|PK                  |
-|recruitment_id|uuid     |NOT NULL|FK → recruitments.id|
-|user_id       |uuid     |NOT NULL|FK → users.id       |
-|is_host       |boolean  |NOT NULL|主催者フラグ              |
-|joined_at     |timestamp|NOT NULL|参加日時                |
+|カラム名                 |型        |NULL    |説明                             |
+|---------------------|---------|--------|-------------------------------|
+|id                   |uuid     |NOT NULL|PK                             |
+|recruitment_id       |uuid     |NOT NULL|FK → recruitments.id           |
+|user_id              |uuid     |NOT NULL|FK → users.id                  |
+|is_host              |boolean  |NOT NULL|主催者フラグ                         |
+|joined_at            |timestamp|NOT NULL|参加日時                           |
+|last_read_message_id |uuid     |NULL    |最後に既読したメッセージID（FK → messages.id）|
+
+UNIQUE制約：(recruitment_id, user_id)
+
+> **未読数の算出：** `messages.created_at > (last_read_message_idに対応するmessage.created_at)` となるメッセージ数。`last_read_message_id` がNULLの場合は全件が未読。
 
 -----
 
@@ -200,6 +208,17 @@ applications
 |group_members|recruitment_id            |グループメンバー取得 |
 |messages     |recruitment_id, created_at|トーク履歴取得    |
 |notifications|user_id, is_read          |未読通知取得     |
+
+-----
+
+## 5. 登録トランザクション
+
+`POST /api/auth/register` では、以下を**単一トランザクション**で実行する：
+
+1. `users` テーブルにレコードを作成（NextAuth.js互換スキーマ）
+2. `profiles` テーブルに対応レコードを作成（`display_name` に登録時の名前を設定）
+
+これにより `profiles` レコードが存在しない `user` が発生しない。
 
 -----
 
