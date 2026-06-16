@@ -12,6 +12,7 @@
 - 認証はNextAuth.jsのセッションで管理
 - レスポンスはすべてJSON
 - エラーレスポンスは { error: string } の形式で統一
+- **認証はproxy（src/proxy.ts）に依存しない**：CVE-2025-29927 を踏まえ、proxy はUXリダイレクト専用とする。認証が必要な Route Handler はすべて `auth()` でセッションを独立検証し、未認証なら 401 を返す。Server Component は `(main)/layout.tsx` が検証済みだが、データ取得 fetch / Server Action では改めて `auth()` を呼ぶこと
 
 -----
 
