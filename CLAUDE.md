@@ -42,6 +42,7 @@ npx prisma generate       # 型生成
 - `src/app/` はルーティングとfeatureの組み立てのみ。**ロジックを書かない**
 - 横断UIは `src/components/`、外部サービスのクライアントは `src/lib/`（prisma.ts / auth.ts / r2.ts / pusher.ts）
 - DB定義の唯一の正は `prisma/schema.prisma`。直接SQLでスキーマを変えない
+- **認証はproxy（src/proxy.ts）に依存しない。** CVE-2025-29927 の教訓として proxy はUXリダイレクト専用。Route Handler・Server Componentは必ず `auth()` でセッションを独立検証する（`(main)/layout.tsx` がその参照実装）
 
 ## コスト制約（無料枠運用のため必ず守る）
 

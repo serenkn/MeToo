@@ -2,7 +2,8 @@
 // マイグレーション実行時は DIRECT_URL が必要（pgbouncer経由では動かない）
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -18,6 +19,7 @@ model User {
   email         String    @unique @db.VarChar(255)
   emailVerified DateTime? @map("email_verified")
   image         String?
+  password      String?   @db.VarChar(100)
   createdAt     DateTime  @default(now()) @map("created_at")
 
   // NextAuth.js 追加テーブル
