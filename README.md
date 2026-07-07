@@ -10,6 +10,14 @@
 募集を探す（さがす） → 参加申請 → 主催者が承認 → グループトーク（はなす） → 一緒に走る
 ```
 
+## 画面（実装済み）
+
+現在 S02 ログイン・S03 新規登録を実装済み。全13画面の仕様は <docs/01_screen_design.md> を参照。
+
+|S02 ログイン|S03 新規登録|
+|:---:|:---:|
+|<img src="docs/screenshots/s02_login.png" alt="S02 ログイン画面" width="300">|<img src="docs/screenshots/s03_register.png" alt="S03 新規登録画面" width="300">|
+
 ## 技術スタック
 
 |カテゴリ   |採用                                      |
