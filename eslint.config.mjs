@@ -31,6 +31,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "docs/**", // 設計モック（metoo-ui-v2.tsx）はビルド対象外
   ]),
   {
     plugins: {
