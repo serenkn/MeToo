@@ -155,9 +155,10 @@ area         : string   // エリア絞り込み
 distance_min : number   // 距離下限
 distance_max : number   // 距離上限
 pace         : string   // ペース
-max_members  : number   // 募集人数
+max_members  : number   // 募集人数が指定値以下の募集に絞り込む（少人数募集の検索用）
 level        : string   // beginner / amateur / pro / club
 date         : string   // today / this_week / this_month（省略時=いつでも・絞り込みなし）
+                        // 起点は今日の0時。today=今日中 / this_week=7日以内 / this_month=1ヶ月以内
 sort         : string   // new（デフォルト）/ meet_at
 page         : number   // ページ番号（デフォルト1）
 limit        : number   // 件数（デフォルト20）
