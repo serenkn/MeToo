@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yellow: #F5C518;
+  --color-black: #1A1A1A;
+  --color-border: #E6E6E6;
+  --color-muted: #999999;
+  --color-bg: #F7F7F7;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
