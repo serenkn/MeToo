@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import { registerSchema } from "@/features/auth/types";
@@ -17,7 +18,7 @@ export async function registerUser(input: unknown) {
 
   const passwordHash = await hash(password, 12);
 
-  const user = await prisma.$transaction(async (tx) => {
+  const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     return tx.user.create({
       data: {
         email,
