@@ -61,12 +61,20 @@ npx prisma generate       # 型生成
 - 秘密情報を `NEXT_PUBLIC_` 付き環境変数に入れない
 - コミットは小さく。1コミット1関心事
 
-## 作業の進め方
+## 作業開始時の手順（毎回必ずこの順で実行）
 
+1. `git fetch origin`
+2. `git checkout -B claude/work origin/claude/work`
+   - リモートの claude/work を正としてローカルを作り直す
+3. `git merge origin/develop` で develop の最新を取り込む
+4. コンフリクトが出たら作業せず報告して停止
+5. 作業完了後は `origin/claude/work` に push し、develop への PR を作成
+
+### ルール
+
+- **新しいブランチは作らない**（sync-work 等の一時ブランチは禁止）
+- ローカルブランチ名も必ず `claude/work` とする
 - タスクは1機能ずつ。指示が大きい場合は分割を提案してから着手する
-- **作業は必ず `claude/work` ブランチ上で行う。新しいブランチは作らない**（人間が明示的に指示した場合のみ例外）
-- タスク開始前に必ず `develop` を pull し、`claude/work` を `develop` の最新に追従させる
-- 完了したら `claude/work` から `develop` への PR を作成する。**マージは人間が行う**
+- コミットは小さく、1コミット1関心事とする
 - **`main` には push もマージもしない**
-- コミットは小さく、こまめに push する
 - 実装に迷ったらdocs/を根拠に判断し、docs/に書いていないことは推測せず確認を求める
